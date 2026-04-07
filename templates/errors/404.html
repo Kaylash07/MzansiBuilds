@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Page Not Found - MzansiBuilds{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="text-center">
+        <h1 style="font-size: 5rem; font-weight: 800; color: var(--green-primary);">404</h1>
+        <h2>Page Not Found</h2>
+        <p class="text-muted mt-1">The page you're looking for doesn't exist.</p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary mt-2">Go Home</a>
+    </div>
+</div>
+{% endblock %}

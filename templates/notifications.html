@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Notifications - MzansiBuilds{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <div class="flex items-center" style="justify-content: space-between;">
+            <div>
+                <h1>Notifications</h1>
+                <p>Stay updated on your projects and collaborations</p>
+            </div>
+            {% if notifications.items %}
+                <form method="POST" action="{{ url_for('mark_notifications_read') }}">
+                    <button type="submit" class="btn btn-ghost btn-sm">Mark all as read</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container" style="max-width: 800px;">
+        {% if notifications.items %}
+            <div class="notification-list">
+                {% for notif in notifications.items %}
+                    <div class="notification-item {{ 'unread' if not notif.is_read else '' }}">
+                        <div class="notification-icon">
+                            {% if notif.type == 'comment' %}&#128172;
+                            {% elif notif.type == 'collab_request' %}&#129309;
+                            {% elif notif.type == 'collab_accepted' %}&#9989;
+                            {% elif notif.type == 'collab_declined' %}&#10060;
+                            {% elif notif.type == 'milestone' %}&#127919;
+                            {% else %}&#128276;
+                            {% endif %}
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-message">
+                                {{ notif.message }}
+                            </div>
+                            <div class="notification-meta">
+                                <span class="text-sm text-muted">{{ notif.created_at.strftime('%d %b %Y, %H:%M') }}</span>
+                                {% if notif.project %}
+                                    <a href="{{ url_for('project_detail', project_id=notif.project_id) }}" class="btn btn-ghost btn-sm">View Project</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% if notifications.pages > 1 %}
+                <div class="pagination">
+                    {% if notifications.has_prev %}
+                        <a href="{{ url_for('notifications', page=notifications.prev_num) }}">&larr; Previous</a>
+                    {% endif %}
+                    {% for page_num in notifications.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                        {% if page_num %}
+                            {% if page_num == notifications.page %}
+                                <span class="active-page">{{ page_num }}</span>
+                            {% else %}
+                                <a href="{{ url_for('notifications', page=page_num) }}">{{ page_num }}</a>
+                            {% endif %}
+                        {% else %}
+                            <span>&hellip;</span>
+                        {% endif %}
+                    {% endfor %}
+                    {% if notifications.has_next %}
+                        <a href="{{ url_for('notifications', page=notifications.next_num) }}">Next &rarr;</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">&#128276;</div>
+                <h3>No notifications yet</h3>
+                <p>When someone comments on your projects or sends a collaboration request, you'll see it here.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

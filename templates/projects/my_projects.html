@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}My Projects - MzansiBuilds{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container flex justify-between items-center">
+        <div>
+            <h1>My Projects</h1>
+            <p>{{ projects|length }} project{{ 's' if projects|length != 1 }}</p>
+        </div>
+        <a href="{{ url_for('create_project') }}" class="btn btn-primary">+ New Project</a>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        {% if projects %}
+            <div class="grid grid-3">
+                {% for project in projects %}
+                    {% include "projects/_card.html" %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">&#128640;</div>
+                <h3>No projects yet</h3>
+                <p>Start building in public by creating your first project!</p>
+                <a href="{{ url_for('create_project') }}" class="btn btn-primary mt-2">Create Project</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

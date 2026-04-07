@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}{{ developer.username }} - MzansiBuilds{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <div class="flex items-center gap-2">
+            <span class="avatar-lg">{{ developer.initials }}</span>
+            <div>
+                <h1>{{ developer.username }}</h1>
+                {% if developer.bio %}
+                    <p>{{ developer.bio }}</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="flex gap-2 mt-2" style="flex-wrap: wrap;">
+            {% if developer.skills %}
+                <div class="tech-tags">
+                    {% for skill in developer.skills.split(',') %}
+                        <span class="tech-tag" style="background: var(--gray-800); color: var(--gray-200);">{{ skill.strip() }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% if developer.github_url %}
+                <a href="{{ developer.github_url }}" class="btn btn-outline btn-sm" target="_blank" rel="noopener noreferrer">GitHub</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        <h2 class="section-title">Projects by {{ developer.username }}</h2>
+        <p class="section-subtitle">{{ projects|length }} project{{ 's' if projects|length != 1 }} &middot; {{ developer.completed_projects_count }} completed</p>
+
+        {% if projects %}
+            <div class="grid grid-3">
+                {% for project in projects %}
+                    {% include "projects/_card.html" %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">&#128736;</div>
+                <h3>No projects yet</h3>
+                <p>This developer hasn't shared any projects yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

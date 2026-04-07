@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}New Project - MzansiBuilds{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Create New Project</h1>
+        <p>Share what you're building with the community</p>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container" style="max-width: 700px;">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('create_project') }}">
+                    {{ form.hidden_tag() }}
+
+                    <div class="form-group">
+                        {{ form.title.label }}
+                        {{ form.title(class="form-control", placeholder="What are you building?") }}
+                        {% for error in form.title.errors %}
+                            <div class="form-error">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.description.label }}
+                        {{ form.description(class="form-control", placeholder="Describe your project, goals, and vision...", rows=5) }}
+                        {% for error in form.description.errors %}
+                            <div class="form-error">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.tech_stack.label }}
+                        {{ form.tech_stack(class="form-control", placeholder="Python, Flask, React, PostgreSQL...") }}
+                        {% for error in form.tech_stack.errors %}
+                            <div class="form-error">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            {{ form.stage.label }}
+                            {{ form.stage(class="form-control") }}
+                            {% for error in form.stage.errors %}
+                                <div class="form-error">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="form-group">
+                            {{ form.support_needed.label }}
+                            {{ form.support_needed(class="form-control") }}
+                            {% for error in form.support_needed.errors %}
+                                <div class="form-error">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.repo_url.label }}
+                        {{ form.repo_url(class="form-control", placeholder="https://github.com/you/project") }}
+                        {% for error in form.repo_url.errors %}
+                            <div class="form-error">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.live_url.label }}
+                        {{ form.live_url(class="form-control", placeholder="https://myproject.com") }}
+                        {% for error in form.live_url.errors %}
+                            <div class="form-error">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="flex gap-1">
+                        <button type="submit" class="btn btn-primary">Create Project</button>
+                        <a href="{{ url_for('feed') }}" class="btn btn-ghost">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Support & Help - MzansiBuilds{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Support & Help</h1>
+        <p>Report bugs, request features, or get help with the platform</p>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        <div class="support-grid">
+            <!-- Report Form -->
+            <div class="card">
+                <div class="card-header">&#128029; Report a Bug or Issue</div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('support') }}">
+                        {{ form.hidden_tag() }}
+
+                        <div class="form-group">
+                            {{ form.subject.label }}
+                            {{ form.subject(class="form-control", placeholder="Brief summary of the issue") }}
+                            {% for error in form.subject.errors %}
+                                <div class="form-error">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="form-group">
+                            {{ form.category.label }}
+                            {{ form.category(class="form-control") }}
+                            {% for error in form.category.errors %}
+                                <div class="form-error">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="form-group">
+                            {{ form.description.label }}
+                            {{ form.description(class="form-control", placeholder="Describe the issue in detail. What happened? What did you expect?", rows=5) }}
+                            {% for error in form.description.errors %}
+                                <div class="form-error">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="form-group">
+                            {{ form.email.label }}
+                            {{ form.email(class="form-control", placeholder="you@example.com") }}
+                            {% for error in form.email.errors %}
+                                <div class="form-error">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Submit Ticket</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Help Sidebar -->
+            <div>
+                <!-- Email Support -->
+                <div class="card mb-3">
+                    <div class="card-header">&#9993; Email Support</div>
+                    <div class="card-body">
+                        <p class="text-sm text-muted mb-2">Prefer email? Reach out to us directly:</p>
+                        <a href="mailto:mzansibuilds.support@gmail.com" class="btn btn-primary" style="width: 100%;">
+                            mzansibuilds.support@gmail.com
+                        </a>
+                    </div>
+                </div>
+
+                <!-- FAQ -->
+                <div class="card mb-3">
+                    <div class="card-header">&#10067; Frequently Asked Questions</div>
+                    <div class="card-body">
+                        <div class="faq-item">
+                            <h4>How do I create a project?</h4>
+                            <p>Log in, then click <strong>New Project</strong> in the navigation bar. Fill in the details and submit.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h4>How do I update my project progress?</h4>
+                            <p>Go to your project detail page and add milestones to track your progress. You can also update the project stage.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h4>How does the Celebration Wall work?</h4>
+                            <p>When you set your project stage to <strong>Completed</strong>, it automatically appears on the Celebration Wall.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h4>How do I collaborate with others?</h4>
+                            <p>Visit any project and click <strong>Raise Hand to Collaborate</strong>. The project owner can then accept or decline your request.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h4>Can I delete my project?</h4>
+                            <p>Yes. Go to your project, click <strong>Edit</strong>, and scroll down to find the delete option.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="card">
+                    <div class="card-header">&#128279; Quick Links</div>
+                    <div class="card-body">
+                        <ul class="support-links">
+                            <li><a href="{{ url_for('feed') }}">Browse Live Feed</a></li>
+                            <li><a href="{{ url_for('celebration_wall') }}">Celebration Wall</a></li>
+                            {% if current_user.is_authenticated %}
+                                <li><a href="{{ url_for('create_project') }}">Create a New Project</a></li>
+                                <li><a href="{{ url_for('profile') }}">Edit Your Profile</a></li>
+                            {% else %}
+                                <li><a href="{{ url_for('register') }}">Create an Account</a></li>
+                                <li><a href="{{ url_for('login') }}">Log In</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

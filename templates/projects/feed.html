@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Live Feed - MzansiBuilds{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Live Feed</h1>
+        <p>See what developers are building right now</p>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        <div class="search-bar">
+            <form method="GET" action="{{ url_for('feed') }}" class="search-form">
+                <input type="text" name="q" value="{{ search_query }}" placeholder="Search projects by title, description, or tech stack..." class="search-input">
+                {% if stage_filter %}<input type="hidden" name="stage" value="{{ stage_filter }}">{% endif %}
+                {% if support_filter %}<input type="hidden" name="support" value="{{ support_filter }}">{% endif %}
+                <button type="submit" class="btn btn-primary btn-sm">Search</button>
+                {% if search_query %}
+                    <a href="{{ url_for('feed', stage=stage_filter, support=support_filter) }}" class="btn btn-ghost btn-sm">Clear</a>
+                {% endif %}
+            </form>
+        </div>
+
+        <div class="filter-bar">
+            <span class="filter-label">Stage:</span>
+            <a href="{{ url_for('feed', q=search_query, support=support_filter) }}" class="filter-btn {{ 'active' if not stage_filter }}">All</a>
+            {% for value, label in PROJECT_STAGES %}
+                <a href="{{ url_for('feed', stage=value, q=search_query, support=support_filter) }}" class="filter-btn {{ 'active' if stage_filter == value }}">
+                    <span class="stage-tag stage-{{ value }}"><span class="stage-dot"></span> {{ label }}</span>
+                </a>
+            {% endfor %}
+        </div>
+
+        <div class="filter-bar">
+            <span class="filter-label">Support:</span>
+            <a href="{{ url_for('feed', q=search_query, stage=stage_filter) }}" class="filter-btn {{ 'active' if not support_filter }}">All</a>
+            {% for value, label in SUPPORT_TYPES %}
+                {% if value != "none" %}
+                    <a href="{{ url_for('feed', support=value, q=search_query, stage=stage_filter) }}" class="filter-btn {{ 'active' if support_filter == value }}">{{ label }}</a>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        {% if search_query or stage_filter or support_filter %}
+            <div class="active-filters">
+                <span class="text-sm text-muted">
+                    {{ projects.total }} result{{ 's' if projects.total != 1 else '' }} found
+                    {% if search_query %} for "{{ search_query }}"{% endif %}
+                </span>
+                <a href="{{ url_for('feed') }}" class="btn btn-ghost btn-sm">Clear All Filters</a>
+            </div>
+        {% endif %}
+
+        {% if projects.items %}
+            <div class="grid grid-3">
+                {% for project in projects.items %}
+                    {% include "projects/_card.html" %}
+                {% endfor %}
+            </div>
+
+            {% if projects.pages > 1 %}
+                <div class="pagination">
+                    {% if projects.has_prev %}
+                        <a href="{{ url_for('feed', page=projects.prev_num, stage=stage_filter, support=support_filter, q=search_query) }}">&larr; Previous</a>
+                    {% endif %}
+                    {% for page_num in projects.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                        {% if page_num %}
+                            {% if page_num == projects.page %}
+                                <span class="active-page">{{ page_num }}</span>
+                            {% else %}
+                                <a href="{{ url_for('feed', page=page_num, stage=stage_filter, support=support_filter, q=search_query) }}">{{ page_num }}</a>
+                            {% endif %}
+                        {% else %}
+                            <span>&hellip;</span>
+                        {% endif %}
+                    {% endfor %}
+                    {% if projects.has_next %}
+                        <a href="{{ url_for('feed', page=projects.next_num, stage=stage_filter, support=support_filter, q=search_query) }}">Next &rarr;</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">&#128269;</div>
+                <h3>No projects found</h3>
+                <p>
+                    {% if search_query or stage_filter or support_filter %}
+                        No projects match your current filters.
+                        <a href="{{ url_for('feed') }}">Clear all filters</a>
+                    {% else %}
+                        No projects have been shared yet. Be the first!
+                    {% endif %}
+                </p>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('create_project') }}" class="btn btn-primary mt-2">Create Project</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

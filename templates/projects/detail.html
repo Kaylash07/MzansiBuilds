@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% block title %}{{ project.title }} - MzansiBuilds{% endblock %}
+
+{% block content %}
+<div class="project-header">
+    <div class="container">
+        <div class="project-meta-row">
+            <span class="badge badge-{{ project.stage }}">
+                <span class="stage-tag stage-{{ project.stage }}">
+                    <span class="stage-dot"></span>
+                    {{ project.stage_display }}
+                </span>
+            </span>
+            {% if project.support_needed != 'none' %}
+                <span class="support-badge" style="background: rgba(255,255,255,0.1); color: #FF6B6B;">
+                    &#9995; Looking for: {{ project.support_display }}
+                </span>
+            {% endif %}
+        </div>
+        <h1>{{ project.title }}</h1>
+        <div class="project-meta-row">
+            <a href="{{ url_for('developer_profile', user_id=project.developer.id) }}" class="project-meta-item" style="color: var(--green-light);">
+                <span class="avatar-sm">{{ project.developer.initials }}</span>
+                {{ project.developer.username }}
+            </a>
+            <span class="project-meta-item">Created {{ project.created_at.strftime('%d %b %Y') }}</span>
+            <span class="project-meta-item">Updated {{ project.updated_at.strftime('%d %b %Y') }}</span>
+        </div>
+        <div class="project-links">
+            {% if project.repo_url %}
+                <a href="{{ project.repo_url }}" class="btn btn-outline btn-sm" target="_blank" rel="noopener noreferrer">&#128187; Repository</a>
+            {% endif %}
+            {% if project.live_url %}
+                <a href="{{ project.live_url }}" class="btn btn-outline btn-sm" target="_blank" rel="noopener noreferrer">&#127760; Live Demo</a>
+            {% endif %}
+            {% if current_user.is_authenticated and current_user.id == project.user_id %}
+                <a href="{{ url_for('edit_project', project_id=project.id) }}" class="btn btn-ghost btn-sm" style="border-color: var(--gray-600); color: var(--gray-200);">&#9998; Edit</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="project-body">
+    <div class="container">
+        <div class="project-content">
+            <!-- Main Content -->
+            <div>
+                <!-- Description -->
+                <div class="card mb-3">
+                    <div class="card-header">About This Project</div>
+                    <div class="card-body">
+                        <p class="project-description">{{ project.description }}</p>
+                        {% if project.tech_stack %}
+                            <div class="tech-tags mt-2">
+                                {% for tech in project.tech_stack.split(',') %}
+                                    <span class="tech-tag">{{ tech.strip() }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Milestones -->
+                <div class="card mb-3">
+                    <div class="card-header flex justify-between items-center">
+                        Milestones
+                        <span class="text-sm text-muted" style="font-weight: 400;">{{ milestones|length }} milestone{{ 's' if milestones|length != 1 }}</span>
+                    </div>
+                    <div class="card-body">
+                        {% if milestones %}
+                            <div class="milestone-timeline">
+                                {% for milestone in milestones %}
+                                    <div class="milestone-item">
+                                        <div class="milestone-title">{{ milestone.title }}</div>
+                                        {% if milestone.description %}
+                                            <div class="milestone-desc">{{ milestone.description }}</div>
+                                        {% endif %}
+                                        <div class="milestone-date">{{ milestone.created_at.strftime('%d %b %Y, %H:%M') }}</div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted text-sm">No milestones yet.</p>
+                        {% endif %}
+
+                        {% if current_user.is_authenticated and current_user.id == project.user_id %}
+                            <hr style="margin: 20px 0; border: 0; border-top: 1px solid var(--gray-200);">
+                            <form method="POST" action="{{ url_for('add_milestone', project_id=project.id) }}">
+                                {{ milestone_form.hidden_tag() }}
+                                <div class="form-group">
+                                    {{ milestone_form.title(class="form-control", placeholder="Milestone title, e.g. 'API v1 complete'") }}
+                                </div>
+                                <div class="form-group">
+                                    {{ milestone_form.description(class="form-control", placeholder="Brief description (optional)", rows=2) }}
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-sm">Add Milestone</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Comments -->
+                <div class="card">
+                    <div class="card-header flex justify-between items-center">
+                        Comments
+                        <span class="text-sm text-muted" style="font-weight: 400;">{{ comments|length }}</span>
+                    </div>
+                    <div class="card-body">
+                        {% if current_user.is_authenticated %}
+                            <form method="POST" action="{{ url_for('add_comment', project_id=project.id) }}" style="margin-bottom: 20px;">
+                                {{ comment_form.hidden_tag() }}
+                                <div class="form-group" style="margin-bottom: 8px;">
+                                    {{ comment_form.content(class="form-control", placeholder="Share your thoughts, feedback, or encouragement...", rows=3) }}
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-sm">Post Comment</button>
+                            </form>
+                        {% else %}
+                            <p class="text-muted text-sm mb-2"><a href="{{ url_for('login') }}">Log in</a> to leave a comment.</p>
+                        {% endif %}
+
+                        {% if comments %}
+                            {% for comment in comments %}
+                                <div class="comment-item">
+                                    <a href="{{ url_for('developer_profile', user_id=comment.author.id) }}">
+                                        <span class="avatar-sm">{{ comment.author.initials }}</span>
+                                    </a>
+                                    <div class="comment-content">
+                                        <div class="flex items-center gap-1">
+                                            <a href="{{ url_for('developer_profile', user_id=comment.author.id) }}" class="comment-author" style="color: var(--black);">{{ comment.author.username }}</a>
+                                            <span class="comment-date">{{ comment.created_at.strftime('%d %b %Y, %H:%M') }}</span>
+                                        </div>
+                                        <div class="comment-text">{{ comment.content }}</div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted text-sm">No comments yet. Be the first!</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div>
+                <!-- Collaboration -->
+                {% if current_user.is_authenticated and current_user.id != project.user_id %}
+                    <div class="sidebar-card card mb-3">
+                        <div class="card-header">&#129309; Collaborate</div>
+                        <div class="card-body">
+                            {% if has_requested %}
+                                <button class="hand-raise-btn hand-raised" style="width:100%;" disabled>
+                                    &#9995; Hand Raised
+                                </button>
+                                <p class="text-muted text-sm mt-1">You've already requested to collaborate.</p>
+                            {% else %}
+                                <p class="text-sm text-muted mb-2">Want to help out? Raise your hand!</p>
+                                <form method="POST" action="{{ url_for('request_collaboration', project_id=project.id) }}">
+                                    {{ collab_form.hidden_tag() }}
+                                    <div class="form-group">
+                                        {{ collab_form.message(class="form-control", placeholder="How can you help? (optional)", rows=2) }}
+                                    </div>
+                                    <button type="submit" class="hand-raise-btn" style="width:100%;">
+                                        &#9995; Raise Hand to Collaborate
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Project Info -->
+                <div class="sidebar-card card mb-3">
+                    <div class="card-header">Project Info</div>
+                    <div class="card-body">
+                        <div style="margin-bottom: 12px;">
+                            <div class="text-sm text-muted">Stage</div>
+                            <span class="badge badge-{{ project.stage }} mt-1">
+                                <span class="stage-tag stage-{{ project.stage }}">
+                                    <span class="stage-dot"></span>
+                                    {{ project.stage_display }}
+                                </span>
+                            </span>
+                        </div>
+                        {% if project.support_needed != 'none' %}
+                            <div style="margin-bottom: 12px;">
+                                <div class="text-sm text-muted">Support Needed</div>
+                                <span class="support-badge mt-1">{{ project.support_display }}</span>
+                            </div>
+                        {% endif %}
+                        <div style="margin-bottom: 12px;">
+                            <div class="text-sm text-muted">Collaboration Requests</div>
+                            <div class="mt-1" style="font-weight: 600;">{{ project.collaboration_requests.count() }}</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-muted">Milestones</div>
+                            <div class="mt-1" style="font-weight: 600;">{{ milestones|length }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Collaboration Requests (visible to owner) -->
+                {% if current_user.is_authenticated and current_user.id == project.user_id %}
+                    {% set collabs = project.collaboration_requests.all() %}
+                    {% if collabs %}
+                        <div class="sidebar-card card">
+                            <div class="card-header">&#9995; Collaboration Requests</div>
+                            <div class="card-body">
+                                {% for collab in collabs %}
+                                    <div class="collab-item">
+                                        <a href="{{ url_for('developer_profile', user_id=collab.requester.id) }}">
+                                            <span class="avatar-sm">{{ collab.requester.initials }}</span>
+                                        </a>
+                                        <div class="collab-info">
+                                            <div style="font-weight:600; font-size: 0.9rem;">
+                                                <a href="{{ url_for('developer_profile', user_id=collab.requester.id) }}" style="color: var(--black);">{{ collab.requester.username }}</a>
+                                            </div>
+                                            {% if collab.message %}
+                                                <div class="text-sm text-muted">{{ collab.message }}</div>
+                                            {% endif %}
+                                            <span class="badge badge-{{ collab.status }}">{{ collab.status }}</span>
+                                        </div>
+                                        {% if collab.status == 'pending' %}
+                                            <div class="collab-actions" style="flex-direction: column;">
+                                                <form method="POST" action="{{ url_for('handle_collaboration', collab_id=collab.id, action='accepted') }}">
+                                                    <button type="submit" class="btn btn-primary btn-sm">Accept</button>
+                                                </form>
+                                                <form method="POST" action="{{ url_for('handle_collaboration', collab_id=collab.id, action='declined') }}">
+                                                    <button type="submit" class="btn btn-ghost btn-sm">Decline</button>
+                                                </form>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

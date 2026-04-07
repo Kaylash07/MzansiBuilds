@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Collaborations - MzansiBuilds{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Collaborations</h1>
+        <p>Manage your collaboration requests</p>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container" style="max-width: 800px;">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('incoming')">Incoming ({{ incoming|length }})</button>
+            <button class="tab-btn" onclick="switchTab('outgoing')">Outgoing ({{ outgoing|length }})</button>
+        </div>
+
+        <div id="tab-incoming" class="tab-content active">
+            {% if incoming %}
+                <div class="card">
+                    <div class="card-body">
+                        {% for collab in incoming %}
+                            <div class="collab-item">
+                                <a href="{{ url_for('developer_profile', user_id=collab.requester.id) }}">
+                                    <span class="avatar-md">{{ collab.requester.initials }}</span>
+                                </a>
+                                <div class="collab-info">
+                                    <div style="font-weight: 600;">
+                                        <a href="{{ url_for('developer_profile', user_id=collab.requester.id) }}" style="color: var(--black);">{{ collab.requester.username }}</a>
+                                        wants to collaborate on
+                                        <a href="{{ url_for('project_detail', project_id=collab.project.id) }}">{{ collab.project.title }}</a>
+                                    </div>
+                                    {% if collab.message %}
+                                        <div class="text-sm text-muted mt-1">"{{ collab.message }}"</div>
+                                    {% endif %}
+                                    <div class="mt-1">
+                                        <span class="badge badge-{{ collab.status }}">{{ collab.status }}</span>
+                                        <span class="text-sm text-muted">{{ collab.created_at.strftime('%d %b %Y') }}</span>
+                                    </div>
+                                </div>
+                                {% if collab.status == 'pending' %}
+                                    <div class="collab-actions">
+                                        <form method="POST" action="{{ url_for('handle_collaboration', collab_id=collab.id, action='accepted') }}">
+                                            <button type="submit" class="btn btn-primary btn-sm">Accept</button>
+                                        </form>
+                                        <form method="POST" action="{{ url_for('handle_collaboration', collab_id=collab.id, action='declined') }}">
+                                            <button type="submit" class="btn btn-ghost btn-sm">Decline</button>
+                                        </form>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">&#129309;</div>
+                    <h3>No incoming requests</h3>
+                    <p>When other developers want to collaborate on your projects, requests will appear here.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div id="tab-outgoing" class="tab-content">
+            {% if outgoing %}
+                <div class="card">
+                    <div class="card-body">
+                        {% for collab in outgoing %}
+                            <div class="collab-item">
+                                <span class="avatar-md">{{ collab.project.developer.initials }}</span>
+                                <div class="collab-info">
+                                    <div style="font-weight: 600;">
+                                        You requested to collaborate on
+                                        <a href="{{ url_for('project_detail', project_id=collab.project.id) }}">{{ collab.project.title }}</a>
+                                        by <a href="{{ url_for('developer_profile', user_id=collab.project.developer.id) }}">{{ collab.project.developer.username }}</a>
+                                    </div>
+                                    {% if collab.message %}
+                                        <div class="text-sm text-muted mt-1">"{{ collab.message }}"</div>
+                                    {% endif %}
+                                    <div class="mt-1">
+                                        <span class="badge badge-{{ collab.status }}">{{ collab.status }}</span>
+                                        <span class="text-sm text-muted">{{ collab.created_at.strftime('%d %b %Y') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">&#128075;</div>
+                    <h3>No outgoing requests</h3>
+                    <p>Browse the <a href="{{ url_for('feed') }}">feed</a> and raise your hand to collaborate on projects!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+}
+</script>
+{% endblock %}

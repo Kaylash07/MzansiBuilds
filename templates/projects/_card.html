@@ -1,0 +1,33 @@
+<div class="card project-card">
+    <div class="card-body">
+        <div class="project-card-header">
+            <div class="project-card-title">
+                <a href="{{ url_for('project_detail', project_id=project.id) }}">{{ project.title }}</a>
+            </div>
+            <span class="badge badge-{{ project.stage }}">
+                <span class="stage-tag stage-{{ project.stage }}">
+                    <span class="stage-dot"></span>
+                    {{ project.stage_display }}
+                </span>
+            </span>
+        </div>
+        <p class="project-card-desc">{{ project.description }}</p>
+        {% if project.tech_stack %}
+            <div class="tech-tags">
+                {% for tech in project.tech_stack.split(',')[:4] %}
+                    <span class="tech-tag">{{ tech.strip() }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if project.support_needed != 'none' %}
+            <span class="support-badge">&#9995; {{ project.support_display }}</span>
+        {% endif %}
+        <div class="project-card-meta">
+            <a href="{{ url_for('developer_profile', user_id=project.developer.id) }}" class="project-card-author">
+                <span class="avatar-sm">{{ project.developer.initials }}</span>
+                {{ project.developer.username }}
+            </a>
+            <span>{{ project.updated_at.strftime('%d %b %Y') }}</span>
+        </div>
+    </div>
+</div>

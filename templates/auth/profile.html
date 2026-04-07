@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}My Profile - MzansiBuilds{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>My Profile</h1>
+        <p>Manage your account details</p>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container" style="max-width: 640px;">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <span class="avatar-lg">{{ current_user.initials }}</span>
+                    <h3 class="mt-1">{{ current_user.username }}</h3>
+                    <p class="text-muted text-sm">Member since {{ current_user.created_at.strftime('%B %Y') }}</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('profile') }}">
+                    {{ form.hidden_tag() }}
+
+                    <div class="form-group">
+                        {{ form.username.label }}
+                        {{ form.username(class="form-control") }}
+                        {% for error in form.username.errors %}
+                            <div class="form-error">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.email.label }}
+                        {{ form.email(class="form-control") }}
+                        {% for error in form.email.errors %}
+                            <div class="form-error">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.bio.label }}
+                        {{ form.bio(class="form-control", placeholder="Tell others about yourself...", rows=3) }}
+                        {% for error in form.bio.errors %}
+                            <div class="form-error">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.skills.label }}
+                        {{ form.skills(class="form-control", placeholder="Python, React, PostgreSQL...") }}
+                        {% for error in form.skills.errors %}
+                            <div class="form-error">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.github_url.label }}
+                        {{ form.github_url(class="form-control", placeholder="https://github.com/yourusername") }}
+                        {% for error in form.github_url.errors %}
+                            <div class="form-error">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

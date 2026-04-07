@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Celebration Wall - MzansiBuilds{% endblock %}
+
+{% block content %}
+<div class="celebration-hero">
+    <div class="container">
+        <h1>&#127942; <span>Celebration Wall</span></h1>
+        <p>Honouring developers who have completed their projects. Built in public. Shipped.</p>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        {% if projects %}
+            <div class="grid grid-3">
+                {% for project in projects %}
+                    <div class="card celebration-card">
+                        <div class="card-body" style="display: flex; flex-direction: column; gap: 12px;">
+                            <div class="project-card-title">
+                                <a href="{{ url_for('project_detail', project_id=project.id) }}">{{ project.title }}</a>
+                            </div>
+                            <p class="project-card-desc">{{ project.description }}</p>
+                            {% if project.tech_stack %}
+                                <div class="tech-tags">
+                                    {% for tech in project.tech_stack.split(',')[:4] %}
+                                        <span class="tech-tag">{{ tech.strip() }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="project-card-meta">
+                                <a href="{{ url_for('developer_profile', user_id=project.developer.id) }}" class="project-card-author">
+                                    <span class="avatar-sm">{{ project.developer.initials }}</span>
+                                    {{ project.developer.username }}
+                                </a>
+                                {% if project.completed_at %}
+                                    <span>Completed {{ project.completed_at.strftime('%d %b %Y') }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="flex gap-1" style="margin-top: 4px;">
+                                {% if project.repo_url %}
+                                    <a href="{{ project.repo_url }}" class="btn btn-ghost btn-sm" target="_blank" rel="noopener noreferrer">Repository</a>
+                                {% endif %}
+                                {% if project.live_url %}
+                                    <a href="{{ project.live_url }}" class="btn btn-primary btn-sm" target="_blank" rel="noopener noreferrer">View Live</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">&#127942;</div>
+                <h3>The wall awaits its first champion</h3>
+                <p>Complete a project to be featured here!</p>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('create_project') }}" class="btn btn-primary mt-2">Start a Project</a>
+                {% else %}
+                    <a href="{{ url_for('register') }}" class="btn btn-primary mt-2">Join MzansiBuilds</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
